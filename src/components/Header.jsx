@@ -2,7 +2,7 @@ function Header() {
 
   return (
       <header>
-          Header
+          Work in progress
       </header>
   )
 }
