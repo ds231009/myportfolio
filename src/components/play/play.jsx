@@ -1,17 +1,18 @@
-import {Route, Routes} from "react-router-dom";
-import Home from "../home/home.jsx";
+import {Link, Route, Routes} from "react-router-dom";
+import Home from "./playHome.jsx";
 import Projects from "../projects/projects.jsx";
-import Education from "../education/education.jsx";
-import Experience from "../experience/experience.jsx";
+import Sudoku from "./sudoku.jsx";
 
 function Play() {
 
     return (
       <div className={"Play"}>
-          Play
           <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="projects" element={<Projects />} />
+              <Route path="str8ts" element={<Sudoku />} />
+              <Route path="sudoku" element={<Sudoku />} />
+              <Route path="wordle" element={<Sudoku />} />
+              <Route path="ubongo" element={<Sudoku />} />
               <Route path="*" element={<Home />} />
           </Routes>
       </div>

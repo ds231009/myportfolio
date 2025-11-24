@@ -22,6 +22,7 @@ const MainPage = () => {
                     <Route path="/education" element={<Education />} />
                     <Route path="/experience" element={<Experience />} />
                     <Route path="/play/*" element={<Play />} />
+                    <Route path="*" element={<Home />} />
                 </Routes>
             </main>
         </>

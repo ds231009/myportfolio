@@ -1,0 +1,20 @@
+/*.link:hover  div {*/
+/*    height: 25px;*/
+/*}*/
+
+.link {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    height: 25px;
+}
+.link > div {
+    width: 2px;
+    height: 25px;
+        background-color: aqua;
+    transition: all 125ms ease-in;
+}
+
+.active {
+
+}

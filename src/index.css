@@ -1,5 +1,5 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Cascadia Code", monospace;
   line-height: 1.5;
   font-weight: 400;
 
@@ -16,19 +16,25 @@
 body {
   width: 100vw;
   height: 100vh;
-  background-color: #6c6c6c;
+  background-color: #171717;
   margin: 0;
   display: flex;
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
 }
+
 #root {
   width: 100vw;
   height: 100vh;
   display: grid;
   grid-template-rows: 60px auto;
   grid-template-columns: 20% auto;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
 
 main {
@@ -39,9 +45,7 @@ main {
 }
 
 aside {
-  /*height: 100%;*/
-  /*width: 100%;*/
-  background-color: #919191;
+  /*background-color: #919191;*/
   display: flex;
   align-items: stretch;
   justify-content: start;
@@ -60,7 +64,7 @@ header {
   grid-area: 1 / 1 / 1 / 3;
   width: 100%;
   height: 60px;
-  background-color: #a6a6a6;
+  /*background-color: #a6a6a6;*/
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,10 +88,10 @@ main > div {
 }
 
 .projects {
-  background-color: #c6c6c6;
+  /*background-color: #c6c6c6;*/
 }
 
 .education {
-  background-color: #a3d5f4;
+  /*background-color: #a3d5f4;*/
 
 }
