@@ -1,17 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-<!--    <script>-->
-<!--        // Redirect everything back to index.html-->
-<!--        sessionStorage.redirect = location.href;-->
-<!--        location.replace("/");-->
-<!--    </script>-->
     <script>
-        window.location.replace(
-            "/" + window.location.pathname.replace("/", "")
-        );
+        // Redirect everything back to index.html
+        sessionStorage.redirect = location.href;
+        location.replace("/");
     </script>
-
 </head>
 <body></body>
 </html>
