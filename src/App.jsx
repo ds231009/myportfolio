@@ -25,7 +25,7 @@ const App = () => {
                     <Route path="*" element={<Home />} />
                 </Routes>
             </main>
-            <footer className="footer">v0.3</footer>
+            <footer className="footer">v0.31</footer>
         </>
     );
 };
