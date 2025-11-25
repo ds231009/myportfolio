@@ -1,0 +1,56 @@
+.project {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: start;
+    gap: 16px;
+}
+
+.image {
+    width: 128px;
+    height: 128px;
+    /*background-color: #4c4c4c;*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.projectContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    gap: 8px;
+    max-width:  660px;
+}
+
+
+.programs {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    gap: 8px;
+ }
+
+.programItem {
+    /*width: 32px;*/
+    padding: 0 8px;
+    height: 32px;
+    background-color: #1F57E5;
+    text-align: center;
+    align-content: center;
+    border-radius: 5px;
+    min-width: 32px;
+    font-size: 14px;
+}
+
+.software {
+    background-color: #1F57E5;
+    border-radius: 5px;
+}
+
+.technique {
+    background-color: #1F57E5;
+    border-radius: 25px;
+}

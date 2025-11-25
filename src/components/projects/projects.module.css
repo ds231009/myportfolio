@@ -1,0 +1,11 @@
+.projects {
+    /*background-color: #1F57E5;*/
+    padding-top: 30px;
+    width: 90%;
+    /*height: 100%;*/
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 32px;
+    /*padding: 128px 64px;*/
+}

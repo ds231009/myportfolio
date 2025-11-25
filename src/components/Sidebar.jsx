@@ -17,16 +17,25 @@ function Sidebar() {
         <aside>
             <nav>
                 {navLinks.map(link => (
-                    <div className={`${styles.link} ${link.path === "/" + path[0] ? styles.active : ""}`}
+                    <div className=
+                             {`${styles.link} ${link.path === "/" + path[0] ? styles.active : ""}`}
                     >
-                        {link.path === "/" + path[0] ? <div/> : null}
+                        {/*{link.path === "/" + path[0] ? <div className={styles.line}/> : null}*/}
+                        <div className={styles.line}/>
 
                         <Link key={link.label} to={link.path}>
                             {link.label}
                         </Link>
+
+                        {link.path === "/" + path[0] ?
+                            <Link to={"/"}>✗
+                            </Link>
+                            :
+                            null}
                     </div>
                 ))}
             </nav>
+
         </aside>
         )
     }
