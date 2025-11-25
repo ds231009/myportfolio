@@ -13,7 +13,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/** {*/
+/*  border: #e36578 0.5px solid;*/
+/*}*/
+
 body {
+  overflow: hidden;
   width: 100vw;
   height: 100vh;
   background-color: #171717;
@@ -28,7 +33,7 @@ body {
   width: 100vw;
   height: 100vh;
   display: grid;
-  grid-template-rows: 60px auto;
+  grid-template-rows: 60px auto 60px;
   grid-template-columns: 20% auto;
 }
 
@@ -83,6 +88,16 @@ main > div {
   width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+footer {
+  grid-area: 3 / 1 / 3 / 3;
+  width: 100%;
+  height: 60px;
+  /*background-color: #a6a6a6;*/
+  display: flex;
   align-items: center;
   justify-content: center;
 }

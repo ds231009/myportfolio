@@ -21,7 +21,7 @@ function Sidebar() {
                     >
                         {link.path === "/" + path[0] ? <div/> : null}
 
-                        <Link key={link.path} to={link.path}>
+                        <Link key={link.label} to={link.path}>
                             {link.label}
                         </Link>
                     </div>
