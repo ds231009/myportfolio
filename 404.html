@@ -1,20 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
     <script>
-        // Prevent loops: if we arrive at 404.html directly, do nothing
-        if (!sessionStorage.getItem("redirected")) {
-            // Store the original requested URL
-            sessionStorage.setItem("redirected", "true");
-            sessionStorage.setItem("redirectPath", location.pathname + location.search + location.hash);
-
-            // Redirect to root so Vite can load the SPA
-            location.replace("/");
-        } else {
-            // If already redirected, clean state
-            sessionStorage.removeItem("redirected");
-        }
+        // Redirect everything back to index.html
+        sessionStorage.redirect = location.href;
+        location.replace("/");
     </script>
 </head>
 <body></body>
