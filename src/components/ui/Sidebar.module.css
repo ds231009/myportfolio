@@ -1,0 +1,21 @@
+.active {
+    font-weight: bold;
+    font-size: 18px;
+    transition: all 128ms linear;
+}
+
+.link > a {
+    transition: all 128ms linear;
+
+}
+
+.path {
+
+}
+
+.subpaths {
+    padding-left: 16px;
+    flex-direction: column;
+    gap: 8px;
+    display: flex;
+}

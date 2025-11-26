@@ -5,9 +5,12 @@ function Project(project) {
     console.log(project.tech);
     return (
         <div className={styles.project}>
-            <div className={styles.image}>Image placeholder</div>
+            {/*<div className={styles.image}>Image placeholder</div>*/}
             <div className={styles.projectContent}>
-                <h2 className={styles.projectName}>{project.name}</h2>
+                <div className={styles.header}>
+                    <h2 className={styles.projectName}>{project.name}</h2>
+                    <span className={styles.dateLoc}>{project.date} @ {project.location}</span>
+                </div>
                 <p className={styles.projectDescription}>{project.description}</p>
                     <div className={styles.programs}>
                     {

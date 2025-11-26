@@ -11,7 +11,9 @@ function Projects() {
                 {
                     "software": [],
                     "technique": ["Market Research","Business Model"]
-                }
+                },
+            "date": "June 2025",
+            "location" : "USTP"
         },
         {
             "name" : "Okay AI, how does AI influence IT Security?",
@@ -20,7 +22,9 @@ function Projects() {
                 {
                     "software": [],
                     "technique": ["Market Research","Business Model"]
-                }
+                },
+            "date": "June 2025",
+            "location" : "USTP"
         },
         {
             "name" : "Humanities last patronus? Benchmarking AI",
@@ -29,7 +33,9 @@ function Projects() {
                 {
                     "software": ["Py"],
                     "technique": ["Machine Learning"]
-                }
+                },
+            "date": "June 2025",
+            "location" : "USTP"
         },
         {
             "name" : "Creative Code Lab I",
@@ -38,7 +44,9 @@ function Projects() {
                 {
                     "software":  ["DHTML", "Figma", "Photoshop"],
                     "technique": ["Machine Learning"]
-                }
+                },
+            "date": "June 2025",
+            "location" : "USTP"
         },
         {
             "name" : "Creative Code Lab II",
@@ -47,7 +55,9 @@ function Projects() {
                 {
                     "software":  ["React", "node.js", "MySQL", "Figma"],
                     "technique": ["Machine Learning"]
-                }
+                },
+            "date": "June 2025",
+            "location" : "USTP"
         }
     ]
 

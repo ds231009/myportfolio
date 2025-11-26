@@ -13,9 +13,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/** {*/
-/*  border: #e36578 0.5px solid;*/
-/*}*/
+* {
+  border: #e36578 0.5px solid;
+}
 
 html, body {
   overflow: hidden;
@@ -65,8 +65,8 @@ main {
 }
 
 aside {
-  width: 12.5%;
-  min-width: 164px;
+  width: 16%;
+  min-width: 192px;
   height: 100%;
   /*background-color: #919191;*/
   display: flex;
@@ -104,6 +104,7 @@ main {
   display: flex;
   align-items: start;
   padding:  64px 128px 0 128px;
+  gap : 64px;
 }
 
 
@@ -118,3 +119,4 @@ main {
     align-items: center;
     justify-content: center;
   }
+

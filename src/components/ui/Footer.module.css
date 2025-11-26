@@ -1,0 +1,10 @@
+.version {
+    position: absolute;
+    bottom: 0;
+    justify-self: start;
+}
+
+.footerCanvas {
+    width: 100%;
+    height: 100%;
+}
