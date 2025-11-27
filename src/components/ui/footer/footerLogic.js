@@ -2,13 +2,14 @@ export const STATES = {
     IDLE: "IDLE",
     WALKING: "WALKING",
     SPRINTING: "SPRINTING",
+    OUTSIDE: "OUTSIDE",
     JUMPING: "JUMPING",
     VERTICLEJUMPING: "VERTICLEJUMPING",
     TRIPPED: "TRIPPED"
 };
 
 export const CONSTANTS = {
-    RECT_W: 20,
+    RECT_W: 40,
     RECT_H: 40
 };
 
@@ -47,10 +48,17 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
     else {
         if (!sm.isGrounded) {
             sm.state = STATES.JUMPING;
+
+        } else if (speed <= 0.5  && distanceToTarget < 80 ) {
+            // console.log(bounds,input, input.x , bounds.left + bounds.width)
+            if (input.x < bounds.left || input.x > bounds.width) {
+                sm.state = STATES.OUTSIDE;
+            }
+            else {
+                sm.state = STATES.VERTICLEJUMPING;
+            }
         } else if (speed > 5) {
             sm.state = STATES.SPRINTING;
-        } else if (speed <= 0.5  && distanceToTarget < 80 ) {
-            sm.state = STATES.VERTICLEJUMPING;
         } else if (speed > 0.5) {
             sm.state = STATES.WALKING;
         } else {
@@ -66,7 +74,7 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
             sm.state = STATES.TRIPPED;
             sm.stateTimer = 60; // Stay tripped for 60 frames (1 second)
             sm.velocityX *= 0.025; // Keep sliding a bit
-            console.log("OOF! Tripped!");
+            // console.log("OOF! Tripped!");
         }
     }
 
@@ -122,7 +130,7 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
         sm.velocityY = Math.min(sm.velocityY, -5);  // Min jump height
 
         sm.isGrounded = false;
-        console.log("JUMP! Trying to reach height:", heightToReach.toFixed(2), "JumpForce:", sm.velocityY.toFixed(2));
+        // console.log("JUMP! Trying to reach height:", heightToReach.toFixed(2), "JumpForce:", sm.velocityY.toFixed(2));
     }
 
     // Update reference for next frame
@@ -149,7 +157,10 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
 
     // Update horizontal position
     sm.x += sm.velocityX;
-    sm.x = Math.min(bounds.width - RECT_W, Math.max(0, sm.x));
+    sm.x = Math.min(bounds.width - RECT_W, Math.max(RECT_W, sm.x));
+    if (sm.x === 0 || sm.x === bounds.width - RECT_W) {
+        sm.velocityX = 0
+    }
 
     return {
         distanceToTarget,

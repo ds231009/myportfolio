@@ -1,5 +1,5 @@
 import Header from './components/ui/Header.jsx'
-import Footer from './components/ui/Footer.jsx'
+import Footer from './components/ui/footer/footer.jsx'
 import Sidebar from './components/ui/Sidebar.jsx'
 
 import Home from './components/home/home.jsx'
