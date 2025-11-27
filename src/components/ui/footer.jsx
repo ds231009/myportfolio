@@ -1,34 +1,32 @@
 import styles from "./Footer.module.css"
 import { useEffect, useRef } from "react";
+import { STATES, CONSTANTS, updateStickmanPhysics } from "./footerLogic";
 
 export default function FooterCanvas() {
     const canvasRef = useRef(null);
     const mouseX = useRef(0);
     const mouseY = useRef(0);
     const canvasPosRef = useRef({ left: 0, top: 0, width: 0, height: 0 });
+    const prevDistance = useRef(0);
 
     // Physics properties
     const stickman = useRef({
-        x: 0,
-        y: 0,
-        velocityX: 0,
-        velocityY: 0,        // NEW: Vertical velocity
+        x: 0, y: 0,
+        velocityX: 0, velocityY: 0,
         targetX: 0,
+
         acceleration: 0.5,
         maxSpeed: 8,
         friction: 0.85,
+        gravity: 1.5,
+        groundY: 0,
 
-        // Jump/gravity properties
-        // distanceToTargetThreshold: 30,
-        isGrounded: true,    // Is he on the ground?
-        gravity: 1.5,        // How fast he falls
-        jumpThreshold: 7,    // Speed needed to trigger jump
-        jumpForce: -12,      // How high he jumps (negative = up)
-        groundY: 0           // Ground level position
+        state: STATES.IDLE,
+        stateTimer: 0,
+        isGrounded: true,
+        jumpThreshold: 7,
+        jumpForce: -12,
     });
-
-    const prevDistance = useRef(0); // Add this
-
 
     useEffect(() => {
         const handleClick = (e) => {
@@ -76,105 +74,45 @@ export default function FooterCanvas() {
 
             ctx.clearRect(0, 0, width, height);
 
-            // Stickman dimensions
-            const rectW = 20;
-            const rectH = 40; // Taller for a stickman
+            const sm = stickman.current;
 
-            // Calculate ground level (bottom of canvas)
-            stickman.current.groundY = height - rectH;
-
-            // === HORIZONTAL PHYSICS (same as before) ===
+            // Calculate relative mouse position here to pass to logic
             const mouseRelativeX = mouseX.current - canvasPosRef.current.left;
             const mouseRelativeY = mouseY.current - canvasPosRef.current.top;
-            stickman.current.targetX = Math.min(width - rectW, Math.max(0, mouseRelativeX - rectW / 2));
 
-            const distanceToTarget = Math.round((stickman.current.targetX - stickman.current.x) * 100) / 100;
-            const accelerationForce = distanceToTarget * 0.0005;
-            stickman.current.velocityX += accelerationForce;
+            // === CALL EXTERNAL LOGIC ===
+            const { distanceToTarget, isGettingCloser, speed } = updateStickmanPhysics(
+                sm,
+                { x: mouseRelativeX, y: mouseRelativeY },
+                { width, height },
+                prevDistance
+            );
 
-            if ( (stickman.current.targetX > stickman.current.x && stickman.current.velocityX < 0) || (stickman.current.targetX < stickman.current.x && stickman.current.velocityX > 0)) {
-                stickman.current.velocityX *= stickman.current.friction;
-            }
+            // === DRAWING ===
+            const { RECT_W, RECT_H } = CONSTANTS;
 
-
-            // Clamp velocity
-            if (Math.abs(stickman.current.velocityX) > stickman.current.maxSpeed) {
-                stickman.current.velocityX = Math.sign(stickman.current.velocityX) * stickman.current.maxSpeed;
-            }
-
-            // === JUMP TRIGGER ===
-            // If moving fast enough and on ground, JUMP!
-            const currentSpeed = Math.abs(stickman.current.velocityX);
-            const isGettingCloser = Math.abs(distanceToTarget) < Math.abs(prevDistance.current);
-
-            const verticalDistance = stickman.current.y - mouseRelativeY;
-            const isCursorAbove = mouseRelativeY < stickman.current.y;
-
-            if (
-                Math.abs(stickman.current.velocityX) > 5 &&
-                Math.abs(distanceToTarget) > 40 &&
-                Math.abs(distanceToTarget) < 80 &&
-                isCursorAbove &&
-                mouseRelativeY > 0 && // Cursor is within canvas
-                stickman.current.isGrounded
-            ) {
-                const heightToReach = verticalDistance;
-                const timeToApex = Math.sqrt((2 * heightToReach) / stickman.current.gravity);
-                const calculatedJumpForce = -stickman.current.gravity * timeToApex;
-
-                // Add a bit extra to ensure we reach it
-                stickman.current.velocityY = calculatedJumpForce * 1.1;
-
-                // Clamp jump force to reasonable values
-                stickman.current.velocityY = Math.max(stickman.current.velocityY, -20); // Max jump height
-                stickman.current.velocityY = Math.min(stickman.current.velocityY, -5);  // Min jump height
-
-                stickman.current.isGrounded = false;
-                console.log("JUMP! Trying to reach height:", heightToReach.toFixed(2), "JumpForce:", stickman.current.velocityY.toFixed(2));
-            }
-
-
-            // === VERTICAL PHYSICS (GRAVITY) ===
-            if (!stickman.current.isGrounded) {
-                stickman.current.velocityY += stickman.current.gravity; // Gravity pulls down
-                stickman.current.y += stickman.current.velocityY;
-                stickman.current.velocityX *= Math.pow(stickman.current.friction, 1 / 4);
-
-                // Check if landed
-                if (stickman.current.y >= stickman.current.groundY) {
-                    stickman.current.y = stickman.current.groundY;
-                    stickman.current.velocityY = 0;
-                    stickman.current.isGrounded = true;
-                }
-            } else {
-                // On ground - stay at ground level
-                stickman.current.y = stickman.current.groundY;
-            }
-
-            // Update horizontal position
-            stickman.current.x += stickman.current.velocityX;
-            stickman.current.x = Math.min(width - rectW, Math.max(0, stickman.current.x));
-
-            // === DRAW STICKMAN ===
-            // Change color based on state
-            const isMaxSpeed = currentSpeed > (stickman.current.maxSpeed * 0.95);
+            // Color Logic
+            const isMaxSpeed = speed > (sm.maxSpeed * 0.95);
             const isFarAway = Math.abs(distanceToTarget) > 300;
 
-// ... inside the color if/else:
+            if (sm.state === STATES.TRIPPED) {
+                // You can add a specific color for tripped if you want, or keep existing
+                ctx.fillStyle = "#ff4a4a"; // Keeping Red for trip as per original "Red when jumping" similarity logic, or default
+            }
 
-            if (!stickman.current.isGrounded) {
+            if (!sm.isGrounded) {
                 ctx.fillStyle = "#ff4a4a"; // Red when jumping
             }
             else if (isMaxSpeed && isFarAway) {
                 ctx.fillStyle = "#FFD700"; // Gold color
             }
-            else if (currentSpeed > 4) {
+            else if (speed > 4) {
                 ctx.fillStyle = "#4aff4a"; // Green when running
             } else {
                 ctx.fillStyle = "#4aacff"; // Blue when idle/walking
             }
 
-            ctx.fillRect(stickman.current.x, stickman.current.y, rectW, rectH);
+            ctx.fillRect(sm.x, sm.y, RECT_W, RECT_H);
 
             // Draw ground line
             ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
@@ -183,21 +121,22 @@ export default function FooterCanvas() {
             ctx.lineTo(width, height);
             ctx.stroke();
 
-            // Debug: velocity indicator
+            // Debug text
             ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-            ctx.fillText(`Speed: ${currentSpeed.toFixed(1)}`, 10, 20);
-            ctx.fillText(`VelY: ${stickman.current.velocityY.toFixed(1)}`, 10, 60);
+            ctx.fillText(`Speed: ${speed.toFixed(1)}`, 10, 20);
+            ctx.fillText(`VelY: ${sm.velocityY.toFixed(1)}`, 10, 60);
             ctx.fillText(`Dist: ${distanceToTarget}`, 10, 40);
             ctx.fillText(`GettingClose: ${isGettingCloser}`, 10, 80);
+            ctx.fillText(`State: ${sm.state}`, 10, 100);
 
             frame = requestAnimationFrame(render);
         };
 
         // Initialize position
-        const rect = canvas.getBoundingClientRect();
-        stickman.current.x = rect.width / 2;
-        stickman.current.y = rect.height - 40;
-        stickman.current.groundY = rect.height - 40;
+        const initialRect = canvas.getBoundingClientRect();
+        stickman.current.x = initialRect.width / 2;
+        stickman.current.y = initialRect.height - 40;
+        stickman.current.groundY = initialRect.height - 40;
 
         frame = requestAnimationFrame(render);
 
