@@ -157,7 +157,7 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
 
     // Update horizontal position
     sm.x += sm.velocityX;
-    sm.x = Math.min(bounds.width - RECT_W, Math.max(RECT_W, sm.x));
+    sm.x = Math.min(bounds.width - RECT_W, Math.max(0, sm.x));
     if (sm.x === 0 || sm.x === bounds.width - RECT_W) {
         sm.velocityX = 0
     }
