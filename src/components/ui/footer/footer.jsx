@@ -3,8 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { STATES, CONSTANTS, updateStickmanPhysics } from "./footerLogic.js";
 // === SPRITE CONFIGURATION ===
 // You must tweak these numbers to match your actual image file!
+
+import spriteSource from "./sprites/spritesheet.png"
+
 const SPRITE_CFG = {
-    src: "../../../../public/sprites/spritesheet.png", // Put this file in your public folder
+    src: spriteSource.src || spriteSource, // Put this file in your public folder
     frameWidth: 40,  // Width of a single frame in the PNG
     frameHeight: 40, // Height of a single frame in the PNG
     scale: 1.5,      // Make him bigger/smaller on screen
