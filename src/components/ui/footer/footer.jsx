@@ -13,7 +13,7 @@ const SPRITE_CFG = {
     anims: {
         [STATES.IDLE]:              { row: 0, cols: 4, speed: 10,   loopStart: 0 },
 
-        [STATES.VERTICLEJUMPING]:   { row: 1, cols: 6, speed: 10,   loopStart: 3 },
+        [STATES.VERTICLEJUMPING]:   { row: 1, cols: 6, speed: 3,   loopStart: 3 },
         [STATES.JUMPING]:           { row: 2, cols: 6, speed: 1,    loopStart: 3, loopEnd: 3 },
         [STATES.LANDING]:           { row: 3, cols: 4, speed: 1,    loopStart: 0, stopAtEnd: true },
 
@@ -24,7 +24,7 @@ const SPRITE_CFG = {
 
         [STATES.SPRINTING]:         { row: 7, cols: 6, stride: 25,  loopStart: 2, loopEnd: 5 },
 
-        [STATES.OUTSIDE]:           { row: 8, cols: 1, speed: 10,   loopStart: 0 },
+        [STATES.OUTSIDE]:           { row: 8, cols: 5, speed: 10,   loopStart: 4 },
     }
 };
 
@@ -47,7 +47,7 @@ export default function FooterCanvas() {
         acceleration: 0.5,
         maxSpeed: 8,
         friction: 0.85,
-        gravity: 1.5,
+        gravity: 0.75,
         groundY: 0,
         state: STATES.IDLE,
         stateTimer: 0,
