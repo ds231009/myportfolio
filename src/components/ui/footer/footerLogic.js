@@ -1,11 +1,13 @@
 export const STATES = {
     IDLE: "IDLE",
+    VERTICLEJUMPING: "VERTICLEJUMPING",
+    JUMPING: "JUMPING",
+    LANDING: "LANDING",
+    TRIPPED: "TRIPPED",
+    RECOVERING: "RECOVERING",
     WALKING: "WALKING",
     SPRINTING: "SPRINTING",
     OUTSIDE: "OUTSIDE",
-    JUMPING: "JUMPING",
-    VERTICLEJUMPING: "VERTICLEJUMPING",
-    TRIPPED: "TRIPPED"
 };
 
 export const CONSTANTS = {
@@ -29,52 +31,82 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
     const speed = Math.abs(sm.velocityX);
 
     // Calculate raw distance for physics
-    sm.targetX = Math.min(bounds.width - RECT_W, Math.max(0, input.x - RECT_W / 2));
+    // UPDATED: Removed RECT_W offsets to allow full travel to right edge
+    sm.targetX = Math.min(bounds.width, Math.max(0, input.x));
+
     const distanceToTarget = Math.round((sm.targetX - sm.x) * 100) / 100;
     const accelerationForce = distanceToTarget * 0.0005;
 
     // ===========================
     // 1. STATE MACHINE
     // ===========================
+
+    // A. PRIORITY STATES (Tripped)
     if (sm.state === STATES.TRIPPED) {
         sm.stateTimer--;
         sm.velocityY *= 0.0005; // Dampen vertical bounce if tripped
         if (sm.stateTimer <= 0) {
-            sm.state = STATES.IDLE; // Get up
-            sm.y -= 20; // Pop him up a bit
+            sm.state = STATES.RECOVERING; // Time to get up!
         }
+        // Completely freeze physics while tripped
+        return { distanceToTarget: 0, speed: 0 };
     }
-    // Normal State Transitions
+
+    // B. LOCKED STATES (Recovering / Landing)
+    // We apply specific physics (friction) but BLOCK normal state transitions
+    if (sm.state === STATES.RECOVERING || sm.state === STATES.LANDING) {
+        sm.velocityX *= 0.8; // Slide to a halt rapidly
+
+        // IMPORTANT: We do NOT switch to IDLE here.
+        // The FooterCanvas component monitors the animation frame.
+        // When the "Landing" or "Recovering" animation finishes playing,
+        // the Component will force the state to IDLE.
+    }
+
+        // C. NORMAL STATE TRANSITIONS
+    // Only run this if we aren't in a locked state
     else {
         if (!sm.isGrounded) {
-            sm.state = STATES.JUMPING;
-
-        } else if (speed <= 0.5  && distanceToTarget < 80 ) {
-            // console.log(bounds,input, input.x , bounds.left + bounds.width)
-            if (input.x < bounds.left || input.x > bounds.width) {
+            // Keep VERTICLEJUMPING state if we are already in it (so we see the specific animation)
+            if (sm.state !== STATES.VERTICLEJUMPING) {
+                sm.state = STATES.JUMPING;
+            }
+        }
+        else if ((sm.state === STATES.JUMPING || sm.state === STATES.VERTICLEJUMPING) && sm.isGrounded) {
+            sm.state = STATES.LANDING; // Trigger landing from either jump type
+        }
+        else {
+            // 1. EDGE DETECTION (Outside)
+            // Applied when stickman is at either end of the canvas
+            if (sm.x <= 0 || sm.x >= bounds.width) {
                 sm.state = STATES.OUTSIDE;
             }
-            else {
+                // 2. VERTICAL JUMP
+            // Mouse is right above stickman (within 20px) AND speed is low
+            else if (speed <= 4 && Math.abs(distanceToTarget) < 20 && input.y > sm.y - 80) {
                 sm.state = STATES.VERTICLEJUMPING;
             }
-        } else if (speed > 5) {
-            sm.state = STATES.SPRINTING;
-        } else if (speed > 0.5) {
-            sm.state = STATES.WALKING;
-        } else {
-            sm.state = STATES.IDLE;
+            // 3. MOVEMENT STATES
+            else if (speed > 4) {
+                sm.state = STATES.SPRINTING;
+            }
+            else if (speed > 0.5) {
+                sm.state = STATES.WALKING;
+            }
+            else {
+                sm.state = STATES.IDLE;
+            }
         }
 
         // CHECK FOR TRIP CONDITION
-        // If moving fast (>5) and target is BEHIND us, and we try to turn instantly
         const distToTargetRaw = sm.targetX - sm.x;
         const movingOppositeToTarget = (distToTargetRaw > 0 && sm.velocityX < -4) || (distToTargetRaw < 0 && sm.velocityX > 4);
 
-        if (sm.state === STATES.SPRINTING && Math.random() > 0.995) { // 5% chance to trip when turning fast
+        if (sm.state === STATES.SPRINTING && Math.random() > 0.995) {
+            // 0.5% chance to trip per frame when turning fast
             sm.state = STATES.TRIPPED;
             sm.stateTimer = 60; // Stay tripped for 60 frames (1 second)
-            sm.velocityX *= 0.025; // Keep sliding a bit
-            // console.log("OOF! Tripped!");
+            sm.velocityX *= 0.025; // Lose most speed immediately
         }
     }
 
@@ -82,10 +114,9 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
     // 2. HORIZONTAL PHYSICS
     // ===========================
 
-
-
-    // Apply acceleration only if not tripped
-    if (sm.state !== STATES.TRIPPED) {
+    // Apply acceleration ONLY if we are in a controllable state
+    // (Cannot move while Tripped, Recovering, or Landing)
+    if (sm.state !== STATES.TRIPPED && sm.state !== STATES.RECOVERING && sm.state !== STATES.LANDING) {
         sm.velocityX += accelerationForce;
     }
 
@@ -103,46 +134,47 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
     // 3. JUMP LOGIC
     // ===========================
 
-    // Check if getting closer compared to previous frame
     const isGettingCloser = Math.abs(distanceToTarget) < Math.abs(prevDistanceRef.current);
-
     const verticalDistance = sm.y - input.y;
     const isCursorAbove = input.y < sm.y;
 
-    if (
-        sm.state !== STATES.TRIPPED && // Can't jump if tripped
-        Math.abs(sm.velocityX) > 5 &&
+    // Condition A: Running Jump (Fast & angled)
+    const isRunningJump = Math.abs(sm.velocityX) > 5 &&
         Math.abs(distanceToTarget) > 40 &&
         Math.abs(distanceToTarget) < 80 &&
         isCursorAbove &&
-        input.y > 0 && // Cursor is within canvas
-        sm.isGrounded
+        input.y > 0;
+
+    // Condition B: Vertical Jump (State already set in Section 1)
+    const isVerticalJump = sm.state === STATES.VERTICLEJUMPING;
+
+    if (
+        sm.state !== STATES.TRIPPED &&
+        sm.state !== STATES.RECOVERING &&
+        sm.state !== STATES.LANDING &&
+        sm.isGrounded &&
+        (isRunningJump || isVerticalJump)
     ) {
         const heightToReach = verticalDistance;
         const timeToApex = Math.sqrt((2 * heightToReach) / sm.gravity);
         const calculatedJumpForce = -sm.gravity * timeToApex;
 
-        // Add a bit extra to ensure we reach it
         sm.velocityY = calculatedJumpForce * 1.1;
-
-        // Clamp jump force to reasonable values
-        sm.velocityY = Math.max(sm.velocityY, -20); // Max jump height
-        sm.velocityY = Math.min(sm.velocityY, -5);  // Min jump height
+        sm.velocityY = Math.max(sm.velocityY, -20);
+        sm.velocityY = Math.min(sm.velocityY, -5);
 
         sm.isGrounded = false;
-        // console.log("JUMP! Trying to reach height:", heightToReach.toFixed(2), "JumpForce:", sm.velocityY.toFixed(2));
     }
 
-    // Update reference for next frame
     prevDistanceRef.current = distanceToTarget;
 
     // ===========================
     // 4. VERTICAL PHYSICS (GRAVITY)
     // ===========================
     if (!sm.isGrounded) {
-        sm.velocityY += sm.gravity; // Gravity pulls down
+        sm.velocityY += sm.gravity;
         sm.y += sm.velocityY;
-        sm.velocityX *= Math.pow(sm.friction, 1 / 4); // Air resistance
+        sm.velocityX *= Math.pow(sm.friction, 1 / 4);
 
         // Check if landed
         if (sm.y >= sm.groundY) {
@@ -151,15 +183,17 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
             sm.isGrounded = true;
         }
     } else {
-        // On ground - stay at ground level
         sm.y = sm.groundY;
     }
 
-    // Update horizontal position
+    // Update horizontal position and clamp
     sm.x += sm.velocityX;
-    sm.x = Math.min(bounds.width - RECT_W, Math.max(0, sm.x));
-    if (sm.x === 0 || sm.x === bounds.width - RECT_W) {
-        sm.velocityX = 0
+    // UPDATED: Clamp to bounds.width instead of bounds.width - RECT_W
+    sm.x = Math.min(bounds.width, Math.max(0, sm.x));
+
+    // Hard stop at edges
+    if (sm.x === 0 || sm.x === bounds.width) {
+        sm.velocityX = 0;
     }
 
     return {

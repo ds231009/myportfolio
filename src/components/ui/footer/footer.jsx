@@ -1,29 +1,30 @@
 import styles from "./Footer.module.css"
 import { useEffect, useRef, useState } from "react";
 import { STATES, CONSTANTS, updateStickmanPhysics } from "./footerLogic.js";
-// === SPRITE CONFIGURATION ===
-// You must tweak these numbers to match your actual image file!
 
 import spriteSource from "./sprites/spritesheet.png"
 
 const SPRITE_CFG = {
-    src: spriteSource.src || spriteSource, // Put this file in your public folder
-    frameWidth: 40,  // Width of a single frame in the PNG
-    frameHeight: 40, // Height of a single frame in the PNG
-    scale: 1.5,      // Make him bigger/smaller on screen
+    src: spriteSource.src || spriteSource,
+    frameWidth: 80,
+    frameHeight: 80,
+    scale: 1,
 
-    // Animation Definitions
-    // row: Which row in the sheet
-    // cols: How many frames in that animation
-    // speed: Higher number = Slower animation (frames per step)
     anims: {
-        [STATES.IDLE]:              { row: 0, cols: 4, speed: 10 },
-        [STATES.VERTICLEJUMPING]:   { row: 1, cols: 4, speed: 10 },
-        [STATES.OUTSIDE]:   { row: 1, cols: 4, speed: 10 },
-        [STATES.WALKING]:           { row: 2, cols: 8, speed: 5 },
-        [STATES.SPRINTING]:         { row: 3, cols: 6, speed: 3 }, // Fast!
-        [STATES.JUMPING]:           { row: 4, cols: 1, speed: 1 }, // Single frame
-        [STATES.TRIPPED]:           { row: 5, cols: 1, speed: 1 }, // Faceplant frame
+        [STATES.IDLE]:              { row: 0, cols: 4, speed: 10,   loopStart: 0 },
+
+        [STATES.VERTICLEJUMPING]:   { row: 1, cols: 6, speed: 10,   loopStart: 3 },
+        [STATES.JUMPING]:           { row: 2, cols: 6, speed: 1,    loopStart: 3, loopEnd: 3 },
+        [STATES.LANDING]:           { row: 3, cols: 4, speed: 1,    loopStart: 0, stopAtEnd: true },
+
+        [STATES.TRIPPED]:           { row: 4, cols: 5, speed: 30,  loopStart: 0 },
+        [STATES.RECOVERING]:        { row: 5, cols: 3, speed: 30,  loopStart: 0, stopAtEnd: true },
+
+        [STATES.WALKING]:           { row: 6, cols: 8, stride: 15,  loopStart: 0 },
+
+        [STATES.SPRINTING]:         { row: 7, cols: 6, stride: 25,  loopStart: 2, loopEnd: 5 },
+
+        [STATES.OUTSIDE]:           { row: 8, cols: 1, speed: 10,   loopStart: 0 },
     }
 };
 
@@ -33,10 +34,12 @@ export default function FooterCanvas() {
     const mouseY = useRef(0);
     const canvasPosRef = useRef({ left: 0, top: 0, width: 0, height: 0 });
     const prevDistance = useRef(0);
-    const spriteImage = useRef(null); // Store the loaded image
-    const [isImageLoaded, setIsImageLoaded] = useState(false); // Trigger re-render once loaded
+    const spriteImage = useRef(null);
+    const [isImageLoaded, setIsImageLoaded] = useState(false);
 
-    // Physics properties
+    const animAccumulator = useRef(0);
+    const lastState = useRef(STATES.IDLE);
+
     const stickman = useRef({
         x: 0, y: 0,
         velocityX: 0, velocityY: 0,
@@ -51,20 +54,18 @@ export default function FooterCanvas() {
         isGrounded: true,
         jumpThreshold: 7,
         jumpForce: -12,
-        facingRight: true // Default direction
+        facingRight: true
     });
 
-    // 1. Load the Sprite Sheet ONCE
     useEffect(() => {
         const img = new Image();
         img.src = SPRITE_CFG.src;
         img.onload = () => {
             spriteImage.current = img;
-            setIsImageLoaded(true); // Start the loop only after image loads
+            setIsImageLoaded(true);
         };
     }, []);
 
-    // 2. Event Listeners
     useEffect(() => {
         const handleMove = (e) => {
             mouseX.current = e.clientX;
@@ -74,22 +75,16 @@ export default function FooterCanvas() {
         return () => window.removeEventListener("mousemove", handleMove);
     }, []);
 
-    // 3. Main Loop
     useEffect(() => {
-        if (!isImageLoaded) return; // Don't start loop until image is ready
+        if (!isImageLoaded) return;
 
         const canvas = canvasRef.current;
         const ctx = canvas.getContext("2d");
-        // Disable image smoothing for crisp pixel art (Optional)
         ctx.imageSmoothingEnabled = false;
 
         let frameId;
-        let globalFrame = 0; // Ticker for animation
 
         const render = () => {
-            globalFrame++;
-
-            // --- CANVAS SETUP ---
             const rect = canvas.getBoundingClientRect();
             canvasPosRef.current = { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
             const width = rect.width;
@@ -99,7 +94,6 @@ export default function FooterCanvas() {
 
             ctx.clearRect(0, 0, width, height);
 
-            // --- PHYSICS LOGIC ---
             const sm = stickman.current;
             const mouseRelativeX = mouseX.current - canvasPosRef.current.left;
             const mouseRelativeY = mouseY.current - canvasPosRef.current.top;
@@ -111,31 +105,78 @@ export default function FooterCanvas() {
                 prevDistance
             );
 
-            // --- SPRITE DRAWING LOGIC ---
+            // --- SPRITE ANIMATION CALCULATIONS ---
             const anim = SPRITE_CFG.anims[sm.state];
 
-            // Calculate which frame to show
-            // Math.floor(globalFrame / speed) slows it down
-            // % cols loops it back to 0
-            const currentFrameIndex = Math.floor(globalFrame / anim.speed) % anim.cols;
+            if (lastState.current !== sm.state) {
+                animAccumulator.current = 0;
+                lastState.current = sm.state;
+            }
 
-            // Calculate position on the sprite sheet
+            // Increment Accumulator
+            if (anim.stride) {
+                animAccumulator.current += Math.abs(sm.velocityX);
+            } else {
+                animAccumulator.current += 1;
+            }
+
+            // --- CALCULATE FRAME INDEX (WITH LOOP & STOP LOGIC) ---
+
+            // 1. Calculate how many frames have theoretically passed (Total)
+            let rawFrameCount = 0;
+            if (anim.stride) {
+                rawFrameCount = Math.floor(animAccumulator.current / anim.stride);
+            } else {
+                rawFrameCount = Math.floor(animAccumulator.current / anim.speed);
+            }
+
+            let currentFrameIndex = 0;
+            const startLoop = anim.loopStart || 0;
+            const endLoop = anim.loopEnd !== undefined ? anim.loopEnd : (anim.cols - 1);
+
+            // 2. Logic: Intro -> Loop -> End
+            if (rawFrameCount < startLoop) {
+                // Intro phase (before loop starts)
+                currentFrameIndex = rawFrameCount;
+            }
+            else {
+                // We have passed the start of the loop
+                if (anim.stopAtEnd) {
+                    // ONE-SHOT ANIMATION (Landing, Recovering)
+                    currentFrameIndex = rawFrameCount;
+
+                    // EXIT CONDITION: If animation finished, go to IDLE
+                    if (currentFrameIndex >= anim.cols) {
+                        currentFrameIndex = anim.cols - 1; // Clamp to last frame
+                        sm.state = STATES.IDLE; // <--- AUTO SWITCH STATE
+                    }
+                } else {
+                    // CONTINUOUS LOOP (Sprinting, Walking)
+                    const loopLength = (endLoop - startLoop) + 1;
+                    const framesInLoop = rawFrameCount - startLoop;
+                    currentFrameIndex = startLoop + (framesInLoop % loopLength);
+                }
+            }
+
+            // 3. Safety clamp (prevent index out of bounds errors)
+            currentFrameIndex = Math.min(currentFrameIndex, anim.cols - 1);
+
+
+            // --- DRAWING ---
             const srcX = currentFrameIndex * SPRITE_CFG.frameWidth;
             const srcY = anim.row * SPRITE_CFG.frameHeight;
 
-            // Destination size (Scaled)
             const destW = SPRITE_CFG.frameWidth * SPRITE_CFG.scale;
             const destH = SPRITE_CFG.frameHeight * SPRITE_CFG.scale;
 
-            // Pivot adjustment (so x/y is at his feet, not top-left)
             const drawX = sm.x - (destW / 2);
-            const drawY = sm.y - destH + CONSTANTS.RECT_H; // Align feet with ground
+            const drawY = sm.y - destH + CONSTANTS.RECT_H;
 
-            ctx.save(); // Save current context state
+            ctx.save();
 
-            // FLIP LOGIC
+            (mouseRelativeX - sm.x < 0) ? sm.facingRight = false : sm.facingRight = true;
+
             if (!sm.facingRight) {
-                // To flip, we translate to the center of the sprite, scale -1, then draw at negative coords
                 ctx.translate(drawX + destW / 2, drawY + destH / 2);
                 ctx.scale(-1, 1);
                 ctx.translate(-(drawX + destW / 2), -(drawY + destH / 2));
@@ -143,27 +184,25 @@ export default function FooterCanvas() {
 
             ctx.drawImage(
                 spriteImage.current,
-                srcX, srcY,                         // Source X, Y (on png)
-                SPRITE_CFG.frameWidth, SPRITE_CFG.frameHeight, // Source W, H
-                drawX, drawY,                       // Dest X, Y (on canvas)
-                destW, destH                        // Dest W, H
+                srcX, srcY,
+                SPRITE_CFG.frameWidth, SPRITE_CFG.frameHeight,
+                drawX, drawY,
+                destW, destH
             );
 
-            ctx.restore(); // Restore context so next draw isn't flipped
+            ctx.restore();
 
-            // Draw Ground Line
+            // Ground Line
             ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
             ctx.beginPath();
             ctx.moveTo(0, height);
             ctx.lineTo(width, height);
             ctx.stroke();
 
+            // Debug
             ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-            ctx.fillText(`Speed: ${speed.toFixed(1)}`, 10, 20);
-            ctx.fillText(`State: ${sm.state}`, 10, 40);
-            ctx.fillText(`VelY: ${sm.velocityY.toFixed(1)}`, 10, 60);
-            ctx.fillText(`Mouse:${mouseX.current} ${mouseY.current}`, 10, 80);
-            ctx.fillText(`Canvas: coor: ${canvasPosRef.current.left}, ${canvasPosRef.current.top} | ${canvasPosRef.current.width} ${canvasPosRef.current.height}`, 10, 100);
+            ctx.fillText(`State: ${sm.state}`, 10, 20);
+            ctx.fillText(`Frame: ${currentFrameIndex} (Raw: ${rawFrameCount})`, 10, 40);
 
             frameId = requestAnimationFrame(render);
         };
@@ -175,21 +214,19 @@ export default function FooterCanvas() {
 
         frameId = requestAnimationFrame(render);
         return () => cancelAnimationFrame(frameId);
-    }, [isImageLoaded]); // Only re-run if loading finishes
+    }, [isImageLoaded]);
 
-    // Resize Handler
     useEffect(() => {
         const canvas = canvasRef.current;
         const resize = () => {
             const parent = canvas.parentElement;
-            if(parent) {
+            if (parent) {
                 const rect = parent.getBoundingClientRect();
                 const dpr = window.devicePixelRatio || 1;
                 canvas.width = rect.width * dpr;
                 canvas.height = rect.height * dpr;
                 const ctx = canvas.getContext("2d");
                 ctx.scale(dpr, dpr);
-                // Important: Reset smoothing after resize
                 ctx.imageSmoothingEnabled = false;
             }
         };
@@ -200,7 +237,7 @@ export default function FooterCanvas() {
 
     return (
         <footer className={styles.footer}>
-            <span className={styles.footerText}>v0.6.0</span>
+            <span className={styles.footerText}>v0.6.3</span>
             <canvas ref={canvasRef} className={styles.footerCanvas} />
         </footer>
     );
