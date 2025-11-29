@@ -11,20 +11,18 @@ const SPRITE_CFG = {
     scale: 1,
 
     anims: {
-        [STATES.IDLE]:              { row: 0, cols: 4, speed: 10,   loopStart: 0 },
-
-        [STATES.VERTICLEJUMPING]:   { row: 1, cols: 6, speed: 3,   loopStart: 3 },
-        [STATES.JUMPING]:           { row: 2, cols: 6, speed: 1,    loopStart: 3, loopEnd: 3 },
-        [STATES.LANDING]:           { row: 3, cols: 4, speed: 1,    loopStart: 0, stopAtEnd: true },
-
-        [STATES.TRIPPED]:           { row: 4, cols: 5, speed: 30,  loopStart: 0 },
-        [STATES.RECOVERING]:        { row: 5, cols: 3, speed: 30,  loopStart: 0, stopAtEnd: true },
-
-        [STATES.WALKING]:           { row: 6, cols: 8, stride: 15,  loopStart: 0 },
-
-        [STATES.SPRINTING]:         { row: 7, cols: 6, stride: 25,  loopStart: 2, loopEnd: 5 },
-
-        [STATES.OUTSIDE]:           { row: 8, cols: 5, speed: 10,   loopStart: 4 },
+        [STATES.IDLE]:              { row: 0, cols: 4, speed: 20,    loopStart: 0 },
+        [STATES.VERTICALJUMPING]:   { row: 1, cols: 6, speed: 5,     loopStart: 3 },
+        [STATES.JUMPING]:           { row: 2, cols: 6, speed: 1,     loopStart: 3, loopEnd: 3 },
+        [STATES.LANDING]:           { row: 3, cols: 4, speed: 1,     loopStart: 0, stopAtEnd: true },
+        [STATES.TRIPPED]:           { row: 4, cols: 7, speed: 10,    loopStart: 0 },
+        [STATES.RECOVERING]:        { row: 5, cols: 6, speed: 10,    loopStart: 0, stopAtEnd: true },
+        [STATES.WALKING]:           { row: 6, cols: 8, stride: 15,   loopStart: 0 },
+        [STATES.SPRINTING]:         { row: 7, cols: 6, stride: 25,   loopStart: 2, loopEnd: 5 },
+        [STATES.SUPER_SPRINT]:      { row: 7, cols: 6, stride: 25,   loopStart: 2, loopEnd: 5 },
+        [STATES.SITTING]:           { row: 8, cols: 5, speed: 10,    loopStart: 4 },
+        [STATES.GETTINGUP]:         { row: 8, cols: 5, speed: 10,    loopStart: 4 },
+        [STATES.BORED]:             { row: 9, cols: 1, speed: 10,    loopStart: 0 },
     }
 };
 
@@ -45,7 +43,7 @@ export default function FooterCanvas() {
         velocityX: 0, velocityY: 0,
         targetX: 0,
         acceleration: 0.5,
-        maxSpeed: 8,
+        maxSpeed: 10,
         friction: 0.85,
         gravity: 0.75,
         groundY: 0,
@@ -203,6 +201,8 @@ export default function FooterCanvas() {
             ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
             ctx.fillText(`State: ${sm.state}`, 10, 20);
             ctx.fillText(`Frame: ${currentFrameIndex} (Raw: ${rawFrameCount})`, 10, 40);
+            ctx.fillText(`Velo: ${sm.velocityX.toFixed(2)}, ${sm.velocityY.toFixed(2)})`, 10, 60);
+            ctx.fillText(`State: ${sm.stateTimer}`, 10, 80);
 
             frameId = requestAnimationFrame(render);
         };

@@ -8,6 +8,8 @@ import Education from './components/education/education.jsx'
 import Experience from './components/experience/experience.jsx'
 import Play from './components/play/play.jsx'
 
+import PW from './components/pw.jsx'
+
 import {useState, useEffect, useRef} from 'react'
 import { Routes, Route } from "react-router-dom";
 
@@ -33,6 +35,7 @@ const App = () => {
                 <main>
                     <Routes>
                         <Route path="/" element={<Home system={os} />} />
+                        <Route path="/pw" element={<PW />} />
                         <Route path="/projects" element={<Projects />} />
                         <Route path="/education" element={<Education />} />
                         <Route path="/experience" element={<Experience />} />
