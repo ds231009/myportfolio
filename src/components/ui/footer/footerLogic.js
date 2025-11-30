@@ -28,8 +28,8 @@ const STATE_CONFIG = {
     [STATES.LANDING]:           { friction: 0.60, canInput: false, gravity: true }, // Slide to stop quickly
     [STATES.TRIPPED]:           { friction: 0.96, canInput: false, gravity: true }, // SLIDE! Don't stop instantly
     [STATES.RECOVERING]:        { friction: 0.70, canInput: false, gravity: true },
-    [STATES.SITTING]:           { friction: 0.85, canInput: true,  gravity: true },
-    [STATES.GETTINGUP]:           { friction: 0.85, canInput: true,  gravity: true },
+    [STATES.SITTING]:           { friction: 0.75, canInput: true,  gravity: true },
+    [STATES.GETTINGUP]:           { friction: 0.55, canInput: true,  gravity: true },
     [STATES.BORED]:             { friction: 0.85, canInput: true,  gravity: true },
 };
 
@@ -110,7 +110,7 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
             }
             else if (speed > 8) sm.state = STATES.SUPER_SPRINT;
             else if (speed > 4)  sm.state = STATES.SPRINTING;
-            else if (speed > 0.125) sm.state = STATES.WALKING;
+            else if (speed > 0.0125) sm.state = STATES.WALKING;
             else sm.state = STATES.IDLE;
             break;
 
@@ -135,7 +135,7 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
     const config = STATE_CONFIG[sm.state] || STATE_CONFIG[STATES.IDLE];
 
     if (config.canInput) {
-        const accelerationForce = distanceToTarget * 0.0005;
+        const accelerationForce = distanceToTarget * 0.00065;
         sm.velocityX += accelerationForce;
     }
 
@@ -190,15 +190,19 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
         sm.y = sm.groundY;
     }
 
-    if (sm.x - 10 < 0 || sm.x + 10  > bounds.width) {
-        sm.velocityX *= 0.95;
-    }
+    // if (sm.x - 50 < 0 || sm.x + 50  > bounds.width) {
+    //     if (sm.x - 30 < 0 || sm.x + 30  > bounds.width) {
+    //         sm.velocityX *= 1.05;
+    //     } else {
+    //         sm.velocityX *= 0.95;
+    //     }
+    // }
 
     sm.x += sm.velocityX;
     sm.x = Math.min(bounds.width, Math.max(0, sm.x));
 
-    if (sm.x <= 5 || sm.x === bounds.width) {
-        sm.velocityX = 0;
+    if (sm.x <= 15 || sm.x >= bounds.width -15) {
+        // sm.velocityX = 0;
         sm.stateTimer = 60;
         sm.state = STATES.SITTING;
     }

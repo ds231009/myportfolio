@@ -94,6 +94,7 @@ header {
 .container {
   height: calc(100% - 60px);
   display: flex;
+  width: 100vw;
   /*flex: 1;*/
   overflow: hidden; /* prevents double scrollbars */
 }
@@ -104,19 +105,6 @@ main {
   display: flex;
   align-items: start;
   padding:  64px 128px 0 128px;
+  /*padding:  64px 0 0 0;*/
   gap : 64px;
 }
-
-
-
-  footer {
-    margin-top: auto;
-    width: 100%;
-    height: 60px;
-    min-height: 60px;
-    /*background-color: #a6a6a6;*/
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
