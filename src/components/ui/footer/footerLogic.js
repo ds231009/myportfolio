@@ -42,7 +42,6 @@ const STATE_CONFIG = {
  */
 
 export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
-    console.log(sm, input, bounds, prevDistanceRef);
     const { RECT_W, RECT_H } = CONSTANTS;
 
     sm.groundY = bounds.height - RECT_H;
@@ -70,7 +69,7 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
             break;
         case STATES.SITTING:
             const isLeftWall = sm.x < bounds.width / 2;
-            const tryingToLeave = isLeftWall ? (input.x > 50) : (input.x < bounds.width - 50);
+            const tryingToLeave = isLeftWall ? (input.x > 0) : (input.x < bounds.width - 0);
 
             if (tryingToLeave) {
                 sm.stateTimer = 60
@@ -152,8 +151,8 @@ export function updateStickmanPhysics(sm, input, bounds, prevDistanceRef) {
 
     const isCursorAbove = input.y < sm.y;
 
-    const canRunningJump = config.canInput && sm.isGrounded && speed > 5 && Math.abs(distanceToTarget) > 40 && Math.abs(distanceToTarget) < 80 && isCursorAbove && input.y > 0;
-    const canVerticalJump = sm.state === STATES.VERTICALJUMPING && sm.isGrounded;
+    const canRunningJump = config.canInput && sm.isGrounded && speed > 5 && Math.abs(distanceToTarget) > 40 && Math.abs(distanceToTarget) < 80 && isCursorAbove && input.y > 40;
+    const canVerticalJump = sm.state === STATES.VERTICALJUMPING && sm.isGrounded && isCursorAbove && input.y > 40;
 
     if (canRunningJump || canVerticalJump) {
         const heightToReach = sm.y - input.y;

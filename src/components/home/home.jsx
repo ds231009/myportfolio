@@ -4,6 +4,12 @@ import styles from "./home.module.css"
 
 function Home(system) {
     const text = "I am a dual bachelor student \n Junior Data Scientist \n Full Stack Developer and \n aspiring UI/UX Designer";
+    const content = [
+        "I am a dual bachelor student",
+        "Junior Data Scientist",
+        "Full Stack Developer and",
+        "aspiring UI/UX Designer",
+    ]
     const [index, setIndex] = useState(0);
     const [timout, setTimout] = useState(50);
 

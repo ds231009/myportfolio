@@ -1,4 +1,4 @@
-import Header from './components/ui/Header.jsx'
+import Header from './components/ui/header/Header.jsx'
 import Footer from './components/ui/footer/footer.jsx'
 import Sidebar from './components/ui/Sidebar.jsx'
 
@@ -13,7 +13,11 @@ import PW from './components/pw.jsx'
 import {useState, useEffect, useRef} from 'react'
 import { Routes, Route } from "react-router-dom";
 
+import useAnonymousAnalytics from "./functions/Analytics.js";
+
 const App = () => {
+    useAnonymousAnalytics()
+
     const [os, setOs] = useState("other");
     const getOS = () => {
         const platform = window.navigator.platform.toLowerCase();

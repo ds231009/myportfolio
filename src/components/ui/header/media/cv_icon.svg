@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="3.8718567mm"
+   height="5.2192497mm"
+   viewBox="0 0 3.8718567 5.2192497"
+   version="1.1"
+   id="svg7559"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7561"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     showgrid="false" />
+  <defs
+     id="defs7556" />
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-279.5142,-5.5050906)">
+    <path
+       id="rect9100"
+       style="fill:none;fill-opacity:0.996078;stroke:#ffffff;stroke-width:0.335054;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;paint-order:markers stroke fill;stop-color:#000000"
+       d="m 280.57191,5.6726171 -0.89018,0.8901885 V 10.21914 c 0,0.187082 0.1506,0.337672 0.33766,0.337672 h 2.8615 c 0.187,0 0.33766,-0.15059 0.33766,-0.337672 V 6.0102886 c 0,-0.187082 -0.1506,-0.3376715 -0.33766,-0.3376715 z"
+       sodipodi:nodetypes="ccssssssc"
+       inkscape:export-filename="cv_icon.svg"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-opacity:0.996078;stroke:#ffffff;stroke-width:0.335054;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill;stop-color:#000000"
+       d="m 280.33825,8.6794961 h 2.2238"
+       id="path9102" />
+    <path
+       style="fill:none;fill-opacity:0.996078;stroke:#ffffff;stroke-width:0.335054;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill;stop-color:#000000"
+       d="m 280.33825,9.316311 h 2.2238"
+       id="path9104" />
+    <path
+       style="fill:none;fill-opacity:0.996078;stroke:#ffffff;stroke-width:0.335054;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill;stop-color:#000000"
+       d="m 280.33825,9.953126 h 2.2238"
+       id="path9106" />
+    <path
+       id="rect9213"
+       style="fill:none;fill-opacity:0.996078;stroke:#ffffff;stroke-width:0.335054;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill;stop-color:#000000"
+       d="m 279.68173,6.5628056 h 0.89018 V 5.6726171"
+       sodipodi:nodetypes="ccc" />
+  </g>
+</svg>

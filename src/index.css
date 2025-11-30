@@ -13,9 +13,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
-  border: #e36578 0.5px solid;
-}
+/** {*/
+/*  border: #e36578 0.5px solid;*/
+/*}*/
 
 html, body {
   overflow: hidden;
@@ -57,12 +57,7 @@ a {
   color: inherit;
 }
 
-main {
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
+
 
 aside {
   width: 16%;
@@ -104,7 +99,13 @@ main {
   /*height: 100%;*/
   display: flex;
   align-items: start;
-  padding:  64px 128px 0 128px;
+  padding:  64px 0 0 0;
   /*padding:  64px 0 0 0;*/
   gap : 64px;
+}
+main {
+  overflow-y: auto;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
 }
